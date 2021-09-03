@@ -1,6 +1,11 @@
 package _02_Chat_Application;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Random;
 
@@ -16,17 +21,34 @@ class App {
 	JPanel Panel = new JPanel();
 	JButton SClient = new JButton("Run Client");
 	JButton SServer = new JButton("Run Server");
+	JButton ServSend = new JButton("Send");
 	JLabel SInfo = new JLabel();
 	JTextField Input = new JTextField(20);
 	int Port;
 	void Server() {
-		Input.setText("Send messages to chat room here.");
-		Panel.add(SInfo);
-		Panel.add(Input);
-		Panel.remove(SClient);
-		Panel.remove(SServer);
-		Panel.repaint();
-		Frame.pack();
+		try {
+			ServerSocket ServSock = new ServerSocket(8678);
+			Socket Sock = ServSock.accept();
+			DataOutputStream DOS = new DataOutputStream(Sock.getOutputStream());
+			DataInputStream DIS = new DataInputStream(Sock.getInputStream());
+			Input.setText("Send messages to chat room here.");
+			Panel.add(SInfo);
+			Panel.add(Input);
+			ServSend.addActionListener((S) -> {
+				try {
+					DOS.writeUTF("Hello");
+				} catch (IOException E) {
+					E.printStackTrace();
+				}
+			});
+			Panel.add(ServSend);
+			Panel.remove(SClient);
+			Panel.remove(SServer);
+			Panel.repaint();
+			Frame.pack();
+		} catch(IOException E) {
+			E.printStackTrace();
+		}
 	}
 	void Client() {
 		
